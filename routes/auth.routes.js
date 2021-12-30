@@ -7,4 +7,6 @@ router.get("/signup", authController.getSignup);
 
 router.get("/login", authController.getLogin);
 
+router.post("/signup", authController.processSignup);
+
 module.exports = router;

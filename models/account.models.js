@@ -2,15 +2,17 @@ const bcrypt = require("bcryptjs");
 const db = require("../data/database");
 
 class Account {
-  constructor(email, password, fullName, street, city, postalCode) {
+  constructor(email, password, fullName, street, city, postalCode, id) {
     this.email = email;
     this.password = password;
     this.fullName = fullName;
-    this.Address = {
+    this.address = {
       street: street,
       city: city,
       postalCode: postalCode,
     };
+    this.id = id;
+
   }
 
   async signup() {
@@ -18,7 +20,7 @@ class Account {
     await db.getDb().collection("accounts").insertOne({
       email: this.email,
       password: hashedPassword,
-      name: this.name,
+      name: this.fullName,
       address: this.address,
     });
   }
@@ -29,15 +31,21 @@ class Account {
       .collection("accounts")
       .findOne({ email: email });
     if (!account) return;
-    else
+    else {
       return new Account(
-        accountDocument.email,
-        accountDocument.password,
-        accountDocument.fullName,
-        accountDocument.Address.street,
-        accountDocument.Address.city,
-        accountDocument.Address.postalCode
+        account.email,
+        account.password,
+        account.fullName,
+        account.address.street,
+        account.address.city,
+        account.address.postalCode,
+        account._id
       );
+    }
+  }
+
+  async hasMatchingPassword(password) {
+    return bcrypt.compare(password, this.password);
   }
 }
 

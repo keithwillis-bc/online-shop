@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const db = require("../data/database");
 
 class Account {
-  constructor(email, password, fullName, street, city, postalCode, id) {
+  constructor(email, password, fullName, street, city, postalCode, isAdmin, id) {
     this.email = email;
     this.password = password;
     this.fullName = fullName;
@@ -11,6 +11,7 @@ class Account {
       city: city,
       postalCode: postalCode,
     };
+    this.isAdmin = isAdmin,
     this.id = id;
 
   }
@@ -30,6 +31,7 @@ class Account {
       .getDb()
       .collection("accounts")
       .findOne({ email: email });
+      console.log(account);
     if (!account) return;
     else {
       return new Account(
@@ -39,6 +41,7 @@ class Account {
         account.address.street,
         account.address.city,
         account.address.postalCode,
+        account.isAdmin,
         account._id
       );
     }

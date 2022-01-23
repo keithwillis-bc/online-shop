@@ -1,50 +1,102 @@
-const { nextTick } = require("process");
 const Account = require("../models/account.models");
 const authUtil = require("../util/authentication");
+const accountValidation = require("../util/validation");
+const sessionFlash = require("../util/sessionFlash");
 
 function getSignup(req, res) {
-  res.render("customer/auth/signup");
+  let sessionData = sessionFlash.getSessionData(req);
+  if (!sessionData) {
+    sessionData = {
+      email: "",
+      confirmEmail: "",
+      password: "",
+      fullName: "",
+      street: "",
+      city: "",
+      postalCode: "",
+    };
+  }
+  res.render("customer/auth/signup", { sessionData });
 }
 
 function getLogin(req, res) {
-  res.render("customer/auth/login");
+  let sessionData = sessionFlash.getSessionData(req);
+
+  if (!sessionData) {
+    sessionData = {
+      email: "",
+      password: "",
+    };
+  }
+  res.render("customer/auth/login", { sessionData });
 }
 
 async function processSignup(req, res, next) {
   //do some validation
-  const email = req.body.email;
-  const password = req.body.password;
-  const fullName = req.body.fullName;
-  const street = req.body.street;
-  const city = req.body.city;
-  const postalCode = req.body.postalCode;
-  /*
+  const dataEntered = {
+    email: req.body.email.toLower(),
+    confirmEmail: req.body.confirmEmail.toLower(),
+    password: req.body.password,
+    fullName: req.body.fullName,
+    street: req.body.street,
+    city: req.body.city,
+    postalCode: req.body.postalCode,
+  };
   if (
-    !accountValidation.isValidAccount(
-      email,
-      password,
-      fullName,
-      street,
-      city,
-      postalCode
+    !accountValidation.accountIsValid(
+      dataEntered.email,
+      dataEntered.password,
+      dataEntered.fullName,
+      dataEntered.street,
+      dataEntered.city,
+      dataEntered.postalCode
+    ) ||
+    !accountValidation.emailIsConfirmed(
+      dataEntered.email,
+      dataEntered.confirmEmail
     )
   ) {
-    console.log("Please check your details");
+    await sessionFlash.flashDataToSession(
+      req,
+      {
+        message:
+          "Please check your details. Password must be at least 6 characters long, Postal Code must be at least 5 characters long, and email must be in a valid email format.",
+        ...dataEntered,
+      },
+      () => {
+        res.redirect("/signup");
+      }
+    );
     return;
   }
-*/
-  let account = await Account.getAccountByEmail(req.email);
+
+  let account = await Account.getAccountByEmail(dataEntered.email);
   if (account) {
-    console.log("Account already exists");
+    await sessionFlash.flashDataToSession(
+      req,
+      {
+        message: "Account already exists. Try logging in instead.",
+        ...dataEntered,
+      },
+      () => {
+        res.redirect("/signup");
+      }
+    );
     return;
   }
 
-  account = new Account(email, password, fullName, street, city, postalCode);
+  account = new Account(
+    dataEntered.email,
+    dataEntered.password,
+    dataEntered.fullName,
+    dataEntered.street,
+    dataEntered.city,
+    dataEntered.postalCode
+  );
 
-  try{
+  try {
     await account.signup();
-  }
-  catch(error){
+  } catch (error) {
     return next(error);
   }
 
@@ -52,23 +104,31 @@ async function processSignup(req, res, next) {
 }
 
 async function performLogin(req, res, next) {
+  const dataEntered = { email: req.body.email, password: req.body.password };
+  const sessionErrorData = {
+    message: "Invalid Credentials. Please check your email and password.",
+    ...dataEntered,
+  };
   let user;
-  try{
-  user = await Account.getAccountByEmail(req.body.email);
-  }
-  catch{
+  try {
+    user = await Account.getAccountByEmail(req.body.email);
+  } catch {
     next(error);
   }
 
   if (!user) {
-    res.redirect("/login");
+    sessionFlash.flashDataToSession(req, sessionErrorData, () => {
+      res.redirect("/login");
+    });
     return;
   }
 
   const passwordIsCorrect = await user.hasMatchingPassword(req.body.password);
 
   if (!passwordIsCorrect) {
-    res.redirect("/login");
+    sessionFlash.flashDataToSession(req, sessionErrorData, () => {
+      res.redirect("/login");
+    });
     return;
   }
 
@@ -77,7 +137,7 @@ async function performLogin(req, res, next) {
   });
 }
 
-function performLogout(req, res){
+function performLogout(req, res) {
   authUtil.clearUserSession(req, res, () => {
     res.redirect("/login");
   });

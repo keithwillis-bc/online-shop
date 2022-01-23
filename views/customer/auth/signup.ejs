@@ -6,36 +6,42 @@
 <%-include('../../shared/includes/header') %>
 <main>
     <h1>Create New Account</h1>
+    <% if(sessionData.message){ %>
+        <section class="alert">
+            <h2>Invalid Input</h2>
+            <p><%= sessionData.message %></p>
+        </section>
+    <% } %>
     <form action="/signup" method="POST" >
         <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
         <p>
             <label for="email">Email</label>
-            <input type="email" name="email" id="email" required>
+            <input type="email" name="email" id="email" value="<%= sessionData.email %>" required>>
         </p>
         <p>
             <label for="confirmEmail">Confirm Email</label>
-            <input type="email" name="confirmEmail" id="confirmEmail" required>
+            <input type="email" name="confirmEmail" id="confirmEmail" value="<%= sessionData.confirmEmail %>" required>
         </p>
         <p>
             <label for="password">Password</label>
-            <input type="password" name="password" id="password" required minlength="6">
+            <input type="password" name="password" id="password" value="<%= sessionData.password %>" minlength="6" required>
         </p>
         <hr>
         <p>
             <label for="fullName">Full Name</label>
-            <input type="text" name="fullName" id="fullName" required>
+            <input type="text" name="fullName" id="fullName" value="<%= sessionData.fullName %>" required>
         </p>
         <p>
             <label for="street">Street</label>
-            <input type="text" name="street" id="street" required>
+            <input type="text" name="street" id="street" value="<%= sessionData.street %>" required>
         </p>
         <p>
             <label for="city">City</label>
-            <input type="text" name="city" id="city" required>
+            <input type="text" name="city" id="city" value="<%= sessionData.city %>" required>
         </p>
         <p>
             <label for="postalCode">Postal Code</label>
-            <input type="text" name="postalCode" id="postalCode" required minlength="5" maxlength="5">
+            <input type="text" name="postalCode" id="postalCode" value="<%= sessionData.postalCode %>" minlength="5" maxlength="5" required>
         </p>
         <button class="btn">Create Account</button>
         <p id="switch-form"><a href="/login">Login instead</a></p>

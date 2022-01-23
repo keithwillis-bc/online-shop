@@ -6,15 +6,21 @@
 <%-include('../../shared/includes/header') %>
 <main>
     <h1>Login To Your Account</h1>
+    <% if(sessionData.message){ %>
+        <section class="alert">
+            <h2>Invalid Credentials</h2>
+            <p><%= sessionData.message %></p>
+        </section>
+    <% } %>
     <form action="/login" method="POST" >
         <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
         <p>
             <label for="email">Email</label>
-            <input type="email" name="email" id="email" required>
+            <input type="email" name="email" id="email" required value='<%= sessionData.email %>'>
         </p>
         <p>
             <label for="password">Password</label>
-            <input type="password" name="password" id="password" required minlength="6">
+            <input type="password" name="password" id="password" required minlength="6" value='<%= sessionData.password %>'>
         </p>
         <button class="btn">Login</button>
         <p id="switch-form"><a href="/signup">Create a new account</a></p>

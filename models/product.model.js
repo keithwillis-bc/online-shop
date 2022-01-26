@@ -78,6 +78,11 @@ class Product {
     this.imagePath = `product-Data/images/${this.image}`;
     this.imageUrl = `products/assets/images/${this.image}`;
   }
+
+  remove(){
+    const productId = new ObjectId(this.id);
+    return db.getDb().collection("products").deleteOne({_id: productId})
+  }
 }
 
 module.exports = Product;

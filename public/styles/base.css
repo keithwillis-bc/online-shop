@@ -79,30 +79,46 @@ btn:active {
   border-color: var(--color-primary-700);
 }
 
-.btn-alt{
+.btn-alt {
   background-color: transparent;
   color: var(--color-primary-500);
 }
 
-.btn-alt:hover, .btn-alt:active{
+.btn-alt:hover,
+.btn-alt:active {
   background-color: var(--color-primary-500-bg);
-
 }
 
-.alert{
+.alert {
   color: var(--color-error-500);
   background-color: var(--color-error-100);
   border-radius: var(--border-radius-small);
   padding: var(--space-4);
 }
 
-.alert h2{
+.alert h2 {
   font-size: 1rem;
   margin: var(--space-2) 0;
   text-transform: uppercase;
 }
 
-.alert p{
+.alert p {
   margin: var(--space-2) 0;
+}
 
+#image-upload-control {
+  display: flex;
+  align-items: center;
+}
+
+#image-upload-control input {
+  max-width: 15rem;
+}
+
+#image-upload-control img {
+  display: none;
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: var(--border-radius-small);
 }

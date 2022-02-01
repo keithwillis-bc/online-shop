@@ -3,7 +3,7 @@
 }
 
 html {
-  font-family: "Montserrat", "sans-serif";
+  font-family: 'Montserrat', 'sans-serif';
 
   --color-gray-50: rgb(243, 236, 230);
   --color-gray-100: rgb(207, 201, 195);
@@ -121,4 +121,12 @@ btn:active {
   height: 4rem;
   object-fit: cover;
   border-radius: var(--border-radius-small);
+}
+
+.badge {
+  margin-left: var(--space-2);
+  padding: 0.15rem var(--space-4);
+  border-radius: 10rem;
+  background-color: var(--color-primary-500);
+  color: var(--color-primary-500-contrast);
 }

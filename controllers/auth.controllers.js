@@ -1,47 +1,48 @@
-const Account = require("../models/account.models");
-const authUtil = require("../util/authentication");
-const accountValidation = require("../util/validation");
-const sessionFlash = require("../util/sessionFlash");
+const Account = require('../models/account.models')
+const authUtil = require('../util/authentication')
+const accountValidation = require('../util/validation')
+const sessionFlash = require('../util/sessionFlash')
 
 function getSignup(req, res) {
-  let sessionData = sessionFlash.getSessionData(req);
+  let sessionData = sessionFlash.getSessionData(req)
   if (!sessionData) {
     sessionData = {
-      email: "",
-      confirmEmail: "",
-      password: "",
-      fullName: "",
-      street: "",
-      city: "",
-      postalCode: "",
-    };
+      email: '',
+      confirmEmail: '',
+      password: '',
+      fullName: '',
+      street: '',
+      city: '',
+      postalCode: '',
+    }
   }
-  res.render("customer/auth/signup", { sessionData });
+  res.render('customer/auth/signup', { sessionData })
 }
 
 function getLogin(req, res) {
-  let sessionData = sessionFlash.getSessionData(req);
+  let sessionData = sessionFlash.getSessionData(req)
 
   if (!sessionData) {
     sessionData = {
-      email: "",
-      password: "",
-    };
+      email: '',
+      password: '',
+    }
   }
-  res.render("customer/auth/login", { sessionData });
+  res.render('customer/auth/login', { sessionData })
 }
 
 async function processSignup(req, res, next) {
   //do some validation
+  console.log(req.body.email.toLowerCase())
   const dataEntered = {
-    email: req.body.email.toLower(),
-    confirmEmail: req.body.confirmEmail.toLower(),
+    email: req.body.email.toLowerCase(),
+    confirmEmail: req.body.confirmEmail.toLowerCase(),
     password: req.body.password,
     fullName: req.body.fullName,
     street: req.body.street,
     city: req.body.city,
     postalCode: req.body.postalCode,
-  };
+  }
   if (
     !accountValidation.accountIsValid(
       dataEntered.email,
@@ -60,29 +61,29 @@ async function processSignup(req, res, next) {
       req,
       {
         message:
-          "Please check your details. Password must be at least 6 characters long, Postal Code must be at least 5 characters long, and email must be in a valid email format.",
+          'Please check your details. Password must be at least 6 characters long, Postal Code must be at least 5 characters long, and email must be in a valid email format.',
         ...dataEntered,
       },
       () => {
-        res.redirect("/signup");
+        res.redirect('/signup')
       }
-    );
-    return;
+    )
+    return
   }
 
-  let account = await Account.getAccountByEmail(dataEntered.email);
+  let account = await Account.getAccountByEmail(dataEntered.email)
   if (account) {
     await sessionFlash.flashDataToSession(
       req,
       {
-        message: "Account already exists. Try logging in instead.",
+        message: 'Account already exists. Try logging in instead.',
         ...dataEntered,
       },
       () => {
-        res.redirect("/signup");
+        res.redirect('/signup')
       }
-    );
-    return;
+    )
+    return
   }
 
   account = new Account(
@@ -92,55 +93,55 @@ async function processSignup(req, res, next) {
     dataEntered.street,
     dataEntered.city,
     dataEntered.postalCode
-  );
+  )
 
   try {
-    await account.signup();
+    await account.signup()
   } catch (error) {
-    return next(error);
+    return next(error)
   }
 
-  res.redirect("/login");
+  res.redirect('/login')
 }
 
 async function performLogin(req, res, next) {
-  const dataEntered = { email: req.body.email, password: req.body.password };
+  const dataEntered = { email: req.body.email, password: req.body.password }
   const sessionErrorData = {
-    message: "Invalid Credentials. Please check your email and password.",
+    message: 'Invalid Credentials. Please check your email and password.',
     ...dataEntered,
-  };
-  let user;
+  }
+  let user
   try {
-    user = await Account.getAccountByEmail(req.body.email);
+    user = await Account.getAccountByEmail(req.body.email)
   } catch {
-    next(error);
+    next(error)
   }
 
   if (!user) {
     sessionFlash.flashDataToSession(req, sessionErrorData, () => {
-      res.redirect("/login");
-    });
-    return;
+      res.redirect('/login')
+    })
+    return
   }
 
-  const passwordIsCorrect = await user.hasMatchingPassword(req.body.password);
+  const passwordIsCorrect = await user.hasMatchingPassword(req.body.password)
 
   if (!passwordIsCorrect) {
     sessionFlash.flashDataToSession(req, sessionErrorData, () => {
-      res.redirect("/login");
-    });
-    return;
+      res.redirect('/login')
+    })
+    return
   }
 
   authUtil.createUserSession(req, user, () => {
-    res.redirect("/");
-  });
+    res.redirect('/')
+  })
 }
 
 function performLogout(req, res) {
   authUtil.clearUserSession(req, res, () => {
-    res.redirect("/login");
-  });
+    res.redirect('/login')
+  })
 }
 
 module.exports = {
@@ -149,4 +150,4 @@ module.exports = {
   processSignup,
   performLogin,
   performLogout,
-};
+}

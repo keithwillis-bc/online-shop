@@ -1,5 +1,6 @@
 <%- include('../../shared/includes/head', {pageTitle: "Your Cart"}) %> 
 <link rel="stylesheet" href="/styles/cart.css">
+<script src="/scripts/cart-item-management.js" defer></script>
 </head>
 <body>
 <%-include('../../shared/includes/header') %>
@@ -13,9 +14,13 @@
             </li>
             <% } %>
         </ul>
-        <div id="cartTotal">
+        <div id="cart-total">
             <p>Total: $<%= locals.cart.totalPrice.toFixed(2) %></p>
+            <%  if(locals.isAuth) { %>
             <button class="btn">Buy Products</button>
+            <% } else { %> 
+                <p id="cart-total-fallback">Log in to proceed and purchase the items.</p>
+            <% }  %>
         </div>
     </section>
  </main>

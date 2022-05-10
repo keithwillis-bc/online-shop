@@ -10,6 +10,6 @@
   </div>
   <div class="cart-item-management">
     <input type="number" value="<%= item.totalQuantity %>" required />
-    <button class="btn btn-alt">Update</button>
+    <button class="btn btn-alt" data-csrf="<%= locals.csrfToken %>" data-productid="<%= item.product.id %>">Update</button>
   </div>
 </article>

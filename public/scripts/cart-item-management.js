@@ -1,17 +1,19 @@
 const updateButtons = document.querySelectorAll(".cart-item-management button");
+const cartItemUpdateFormElements = document.querySelectorAll(
+  ".cart-item-management"
+);
 const cartBadge = document.querySelector(".nav-items .badge");
 const totalPrice = document.querySelector("#cart-total p");
 
-async function updateQuantity(event) {
-  const updateQuantityButton = event.target;
-  const productId = updateQuantityButton.dataset.productid;
-  const csrfToken = updateQuantityButton.dataset.csrf;
+async function updateCartItem(event) {
+  event.preventDefault();
+  const form = event.target;
+  const productId = form.dataset.productid;
+  const csrfToken = form.dataset.csrf;
   const itemPrice =
-    updateQuantityButton.parentElement.parentElement.querySelector(
-      ".cart-item-info p"
-    ).firstChild;
-  const quantity = updateQuantityButton.parentElement.querySelector("input");
-
+    form.parentElement.querySelector(".cart-item-info p").firstChild;
+  const quantity = form.firstElementChild.value;
+  alert(productId);
   let response;
   try {
     response = await fetch("/cart/items", {
@@ -49,6 +51,10 @@ async function updateQuantity(event) {
   }
 }
 
-for (const button of updateButtons) {
+/*for (const button of updateButtons) {
   button.addEventListener("click", updateQuantity);
+}*/
+
+for (const formElement of cartItemUpdateFormElements) {
+  formElement.addEventListener("submit", updateCartItem);
 }

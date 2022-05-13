@@ -28,6 +28,7 @@ async function updateCartItem(req, res, next) {
   const cart = res.locals.cart;
   let updatedItemData;
   try {
+    console.log(req.body);
     updatedItemData = await cart.updateItem(
       req.body.productId,
       req.body.quantity
